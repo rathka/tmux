@@ -7869,6 +7869,57 @@ specified by
 .Fl t
 or the current pane if omitted) after the command finishes.
 If the command fails, the exit status is also displayed.
+.Tg run-script
+.It Xo Ic run\-script
+.Op Fl bE
+.Op Fl c Ar start\-directory
+.Op Fl d Ar delay
+.Op Fl t Ar target\-pane
+.Ar script
+.Op Ar argument ...
+.Xc
+.D1 Pq alias: Ic script
+Execute
+.Ar script
+with optional
+.Ar arguments
+in the background without creating a window.
+The
+.Ar script
+path and any
+.Ar arguments
+are shell-quoted and joined into a single command string before execution.
+With
+.Fl b ,
+the command is run in the background.
+.Fl d
+waits for
+.Ar delay
+seconds before starting the command.
+.Fl E
+redirects the command's stderr to stdout instead of ignoring it.
+If
+.Fl c
+is given, the current working directory is set to
+.Ar start\-directory .
+Any output to stdout is displayed in view mode (in the pane specified by
+.Fl t
+or the current pane if omitted) after the command finishes.
+If the command fails, the exit status is also displayed.
+.Pp
+This command is particularly useful with
+.Ic command\-alias
+to pass arguments to a script from the tmux command prompt.
+For example:
+.Bd -literal -offset indent
+set \-g command\-alias[0] s='run\-script ~/.config/tmux/new\-session.sh'
+.Ed
+.Pp
+Then
+.Ql :s myproject
+passes
+.Ar myproject
+as the first argument to the script.
 .Tg wait
 .It Xo Ic wait\-for
 .Op Fl L | S | U
