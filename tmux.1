@@ -480,13 +480,15 @@ command (such as
 is parsed and again when it parses and executes its command.
 Commands like
 .Ic if\-shell ,
-.Ic run\-shell
+.Ic run\-shell ,
+.Ic run\-script
 and
 .Ic display\-panes
 stop execution of subsequent commands on the queue until something happens -
-.Ic if\-shell
-and
+.Ic if\-shell ,
 .Ic run\-shell
+and
+.Ic run\-script
 until a shell command finishes and
 .Ic display\-panes
 until a key is pressed.
