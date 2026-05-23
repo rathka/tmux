@@ -40,7 +40,7 @@ static void	cmd_run_script_print(struct job *, const char *);
 
 const struct cmd_entry cmd_run_script_entry = {
 	.name = "run-script",
-	.alias = "run-s",
+	.alias = "script",
 
 	.args = { "bd:t:Ec:", 1, INT_MAX, NULL },
 	.usage = "[-bE] [-c start-directory] [-d delay] " CMD_TARGET_PANE_USAGE
