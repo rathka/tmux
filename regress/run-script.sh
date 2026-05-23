@@ -2,7 +2,7 @@
 
 # run-script command tests
 # Tests argument passing, shell-quoting, alias, minimum args enforcement,
-# and working directory (-c flag).
+# working directory (-c flag), and background execution (-b flag).
 
 PATH=/bin:/usr/bin
 TERM=screen
@@ -63,6 +63,25 @@ TMPDIR=$(mktemp -d)
 trap "rm -f $TMP $SCRIPT $WDSCRIPT; rm -rf $TMPDIR" 0 1 15
 $TMUX -f/dev/null new -d "$TMUX run-script -c $TMPDIR $WDSCRIPT >$TMP; sleep 10" || exit 1
 sleep 1 && [ "$(cat $TMP)" = "$TMPDIR" ] || exit 1
+
+$TMUX kill-server 2>/dev/null
+
+# Test 7: -b runs script in background (command returns before script finishes)
+BGSCRIPT=$(mktemp)
+cat > $BGSCRIPT << 'EOF'
+#!/bin/sh
+sleep 2
+echo done
+EOF
+chmod +x $BGSCRIPT
+trap "rm -f $TMP $SCRIPT $WDSCRIPT $BGSCRIPT; rm -rf $TMPDIR" 0 1 15
+$TMUX -f/dev/null new -d "sleep 10" || exit 1
+# run-script -b should return immediately; time the call
+START=$(date +%s)
+$TMUX run-script -b $BGSCRIPT
+END=$(date +%s)
+ELAPSED=$((END - START))
+[ "$ELAPSED" -lt 2 ] || exit 1
 
 $TMUX kill-server 2>/dev/null
 
