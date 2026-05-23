@@ -20,7 +20,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -43,7 +42,7 @@ const struct cmd_entry cmd_run_script_entry = {
 	.alias = "script",
 
 	.args = { "bd:t:Ec:", 1, INT_MAX, NULL },
-	.usage = "[-bE] [-c start-directory] [-d delay] " CMD_TARGET_PANE_USAGE
+	.usage = "[-b] [-c start-directory] [-d delay] [-E] " CMD_TARGET_PANE_USAGE
 	         " script [argument ...]",
 
 	.target = { 't', CMD_FIND_PANE, CMD_FIND_CANFAIL },
@@ -78,8 +77,6 @@ cmd_run_script_print(struct job *job, const char *msg)
 			cmdq_print(cdata->item, "%s", msg);
 			return;
 		}
-		if (cdata->item != NULL && cdata->client != NULL)
-			wp = server_client_get_pane(cdata->client);
 		if (wp == NULL && cmd_find_from_nothing(&fs, 0) == 0)
 			wp = fs.wp;
 		if (wp == NULL)
@@ -118,16 +115,17 @@ cmd_run_script_exec(struct cmd *self, struct cmdq_item *item)
 	}
 
 	/* Build shell command string: escape and join all arguments. */
-	cmd = xstrdup("");
+	cmd = NULL;
 	for (i = 0; i < args_count(args); i++) {
 		escaped = args_escape(args_string(args, i));
-		if (i == 0)
-			tmp = xstrdup(escaped);
-		else
+		if (cmd == NULL)
+			cmd = xstrdup(escaped);
+		else {
 			xasprintf(&tmp, "%s %s", cmd, escaped);
+			free(cmd);
+			cmd = tmp;
+		}
 		free(escaped);
-		free(cmd);
-		cmd = tmp;
 	}
 
 	cdata = xcalloc(1, sizeof *cdata);
